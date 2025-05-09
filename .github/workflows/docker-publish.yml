@@ -49,3 +49,22 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Set package visibility to public
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const packageName = 'dataserver';
+            const owner = 'zotero-custom';
+            
+            try {
+              await github.request('PUT /orgs/{org}/packages/container/{package_name}/visibility', {
+                org: owner,
+                package_name: packageName,
+                visibility: 'public'
+              });
+              console.log('Package visibility set to public');
+            } catch (error) {
+              console.error('Error setting package visibility:', error);
+            }
