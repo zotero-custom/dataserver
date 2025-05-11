@@ -90,14 +90,17 @@ RUN composer install
 
 RUN cp config/config.inc.php ./include/config/config.inc.php && \
     cp config/dbconnect.inc.php ./include/config/dbconnect.inc.php && \
-    rm -rf ./config
+    rm -rf ./config && \
+    # These will get copied to / root later
+    rm -rf init && \ 
+    rm -rf scripts
 
 # Adapt zotero code to work on localhost
 RUN sed -i "s#parent::__construct(\$args)#\$args\['use_path_style_endpoint'\] = true;parent::__construct(\$args)#g" ./vendor/aws/aws-sdk-php/src/S3/S3Client.php
 
-# COPY ./init/www.sql /var/www/zotero/misc/www.sql
+COPY ./init/www.sql /var/www/zotero/misc/www.sql
 
 # Set the entrypoint file
-COPY ./entrypoint.sh /
-RUN chmod +x /entrypoint.sh
+COPY ./entrypoint.sh ./init/init-mysql.sh ./scripts/* /
+RUN chmod +x /*.sh
 ENTRYPOINT ["/entrypoint.sh"]
