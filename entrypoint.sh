@@ -36,7 +36,8 @@ fi
 # Most entries in the configuration file are forwarding rules. 
 # The format of a forwarding rule is as follows:
 #   bindaddress bindport connectaddress connectport [options...]
-echo "0.0.0.0		$S3_SERVER_PORT		$S3_SERVER_HOST		$S3_SERVER_PORT" > /etc/rinetd.conf
+# echo "0.0.0.0		$S3_SERVER_PORT		$S3_SERVER_HOST		$S3_SERVER_PORT" > /etc/rinetd.conf
+echo "0.0.0.0		$S3_SERVER_PORT		minio		$S3_SERVER_PORT" > /etc/rinetd.conf
 /etc/init.d/rinetd start
 
 # Upgrade database

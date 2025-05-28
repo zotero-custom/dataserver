@@ -81,7 +81,7 @@ class Z_CONFIG {
     public static $LOG_ADDRESS = '';
     public static $LOG_PORT = 1463;
     public static $LOG_TIMEZONE = 'US/Eastern';
-    public static $LOG_TARGET_DEFAULT = 'errors';
+    public static $LOG_TARGET_DEFAULT = 'debug';
     
     public static $HTMLCLEAN_SERVER_URL;
 
@@ -144,11 +144,5 @@ class Z_CONFIG {
 }
 
 Z_CONFIG::init();
-
-// print_r(Z_CONFIG::$BASE_URI . "\r\n");
-// print_r(Z_CONFIG::$API_BASE_URI . "\r\n");
-// print_r(Z_CONFIG::$WWW_BASE_URI . "\r\n");
-// print_r(Z_CONFIG::$AWS_ACCESS_KEY . "\r\n");
-// print_r(Z_CONFIG::$AWS_SECRET_KEY . "\r\n");
 
 ?>
