@@ -75,10 +75,13 @@ RUN ARCH=$(dpkg --print-architecture) && \
     ./aws/install && \
     rm awscliv2.zip
 
-# Chown log directory
+# Chown log and tmp directory
 RUN chown 33:33 /var/log/apache2
 
-WORKDIR /var/www/zotero
+ENV ROOT_DIR=/var/www/zotero
+WORKDIR ${ROOT_DIR}
+RUN mkdir -p tmp
+RUN chmod 777 ${ROOT_DIR}/tmp
     
 COPY . .
 
@@ -103,4 +106,16 @@ COPY ./init/www.sql /var/www/zotero/misc/www.sql
 # Set the entrypoint file
 COPY ./entrypoint.sh ./init/init-mysql.sh ./scripts/* /
 RUN chmod +x /*.sh
+
+
+ENV APACHE_RUN_USER=www-data
+ENV APACHE_RUN_GROUP=www-data
+ENV APACHE_LOCK_DIR=/var/lock/apache2
+ENV APACHE_PID_FILE=/var/run/apache2/apache2.pid
+ENV APACHE_RUN_DIR=/var/run/apache2
+ENV APACHE_LOG_DIR=/var/log/apache2
+
+ENV TESTING_SITE=0
+ENV DEV_SITE=0
+
 ENTRYPOINT ["/entrypoint.sh"]
