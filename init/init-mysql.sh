@@ -78,9 +78,9 @@ fi
 
 # TODO: the schema_update script is in dataserver://admin/schema_update.
 #       We'll need to run this from the dataserver after the mysql startup is complete
-# # Run schema updates
-# cd /var/www/zotero/admin
-# ./schema_update
+# Run schema updates
+cd /var/www/zotero/admin
+./schema_update
 
 
 # Master my.cnf:

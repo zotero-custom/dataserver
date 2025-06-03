@@ -26,13 +26,13 @@ class Z_CONFIG {
     public static $API_SUPER_USERNAME = ''; 
     public static $API_SUPER_PASSWORD = ''; 
     
-    public static $AWS_REGION;
+    public static $AWS_REGION = '';
     public static $AWS_ACCESS_KEY;
     public static $AWS_SECRET_KEY;
     public static $S3_ENDPOINT;
-    public static $S3_BUCKET;
+    public static $S3_BUCKET = 'zotero';
     public static $S3_BUCKET_CACHE = '';
-    public static $S3_BUCKET_FULLTEXT;
+    public static $S3_BUCKET_FULLTEXT = 'zotero-fulltext';
     public static $S3_BUCKET_ERRORS = '';
     public static $SNS_ALERT_TOPIC = '';
 
@@ -55,7 +55,9 @@ class Z_CONFIG {
     public static $REDIS_PREFIX = '';
     
     public static $MEMCACHED_ENABLED = true;
-    public static $MEMCACHED_SERVERS = [];
+    public static $MEMCACHED_SERVERS = array(
+		'memcached:11211:1'
+	);
 
     public static $TRANSLATION_SERVERS = array(
         "translation1.localdomain:1969"
@@ -81,7 +83,7 @@ class Z_CONFIG {
     public static $LOG_ADDRESS = '';
     public static $LOG_PORT = 1463;
     public static $LOG_TIMEZONE = 'US/Eastern';
-    public static $LOG_TARGET_DEFAULT = 'errors';
+    public static $LOG_TARGET_DEFAULT = 'debug';
     
     public static $HTMLCLEAN_SERVER_URL;
 
@@ -98,6 +100,8 @@ class Z_CONFIG {
     public static $CACHE_VERSION_RESPONSE_JSON_ITEM = 1;  // new
 
     public static function init() {
+        self::$TESTING_SITE = boolval(self::getEnv('TESTING_SITE'));
+        self::$DEV_SITE = boolval(self::getEnv('DEV_SITE'));
         self::$BASE_URI = self::getEnv('BASE_URI');
         self::$API_BASE_URI = self::getEnv('API_BASE_URI');
         self::$WWW_BASE_URI = self::getEnv('WWW_BASE_URI');
@@ -110,14 +114,6 @@ class Z_CONFIG {
         self::$AWS_ACCESS_KEY = self::getEnv('AWS_ACCESS_KEY_ID');
         self::$AWS_SECRET_KEY = self::getEnv('AWS_SECRET_ACCESS_KEY');
         self::$S3_ENDPOINT = self::getEnv('AWS_ENDPOINT_URL_S3');
-        self::$S3_BUCKET = self::getEnv('S3_BUCKET');
-        if (self::$S3_BUCKET === '') {
-            self::$S3_BUCKET = 'zotero';
-        }
-        self::$S3_BUCKET_FULLTEXT = self::getEnv('S3_BUCKET_FULLTEXT');
-        if (self::$S3_BUCKET_FULLTEXT === '') {
-            self::$S3_BUCKET_FULLTEXT = 'zotero-fulltext';
-        }
         self::$HTMLCLEAN_SERVER_URL = self::getEnv('HTMLCLEAN_SERVER_URL');
         if (self::$HTMLCLEAN_SERVER_URL === '') {
             self::$HTMLCLEAN_SERVER_URL = 'http://tinymce-clean-server:16342';
@@ -144,11 +140,5 @@ class Z_CONFIG {
 }
 
 Z_CONFIG::init();
-
-// print_r(Z_CONFIG::$BASE_URI . "\r\n");
-// print_r(Z_CONFIG::$API_BASE_URI . "\r\n");
-// print_r(Z_CONFIG::$WWW_BASE_URI . "\r\n");
-// print_r(Z_CONFIG::$AWS_ACCESS_KEY . "\r\n");
-// print_r(Z_CONFIG::$AWS_SECRET_KEY . "\r\n");
 
 ?>
