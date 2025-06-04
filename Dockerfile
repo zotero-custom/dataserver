@@ -88,6 +88,13 @@ COPY . .
 RUN mv -f ./zf1/library/Zend/* ./include/Zend && \
     rm -rf ./zf1
 
+# Inject the Zotero schema
+ARG SCHEMA_COMMIT_ID='adce0a84d760c23b3599a06b1be6f4025d9f97e9'
+RUN rm -rf ${ROOT_DIR}/htdocs/zotero-schema && \
+    git clone https://github.com/zotero-custom/zotero-schema.git ${ROOT_DIR}/htdocs/zotero-schema && \
+    cd ${ROOT_DIR}/htdocs/zotero-schema && \
+    git checkout "${SCHEMA_COMMIT_ID}"
+
 # Install dependencies
 RUN composer install
 
