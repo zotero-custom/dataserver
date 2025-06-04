@@ -3,7 +3,7 @@
 # Original source:
 #   https://github.com/victoradrianjimenez/dockerized-zotero/blob/master/dataserver/init/init-mysql.sh
 
-MYSQL='mysql -h mysql -P 3306 -u root'
+MYSQL="mysql -h mysql -P 3306 -u $MYSQL_USER --password=$MYSQL_PASSWORD"
 SCRIPTS_DIR='/var/www/zotero/misc'
 
 if [ $(echo "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'zotero_master'" | $MYSQL -s -N) -eq 0 ]; then
