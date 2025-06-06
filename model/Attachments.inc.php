@@ -53,12 +53,12 @@ class Zotero_Attachments {
 		return $number;
 	}
 	
-	public static function getTemporaryURL(Zotero_Item $item) {
+	public static function getTemporaryURL(Zotero_Item $item, $onlyStream = false) {
 		$info = Zotero_Storage::getLocalFileItemInfo($item);
 		$storageFileID = $info['storageFileID'];
 		$mtime = $info['mtime'];
 		
-		$cacheKey = "attachmentProxyURL_" . $storageFileID . "_" . $mtime;
+		$cacheKey = "attachmentProxyURL_" . $storageFileID . "_" . $mtime . "_" . ($onlyStream ? '1' : '0');
 		if ($url = Z_Core::$MC->get($cacheKey)) {
 			Z_Core::debug("Got attachment {$storageFileID} proxy URL {$url} from memcached");
 			return $url;
@@ -67,30 +67,60 @@ class Zotero_Attachments {
 		$hash = $info['hash'];
 		$zip = $info['zip'];
 		
-		if (strlen($item->attachmentPath) < 9 ||
-			substr($item->attachmentPath, 0, 8) != 'storage:') {
-			throw new Exception("Invalid attachment path '{$item->attachmentPath}'");
-		}
-		$filename = substr($item->attachmentPath, 8);
-		$filename = self::decodeRelativeDescriptorString($filename);
-		
 		$payload = [
 			'expires' => time() + self::$urlTTL,
 			'hash' => $hash,
-			'contentType' => $item->attachmentContentType,
-			'charset' => $item->attachmentCharset
+			'item' => $item->libraryKey,
 		];
 		
-		if ($zip) {
-			$payload['zip'] = 1;
+		// When streaming a ZIP file, don't use the main file's content type, and use the key-based
+		// ZIP filename
+		if ($onlyStream && $zip) {
+			$payload['contentType'] = 'application/zip';
+			$filename = $payload['filename'] = $item->key . '.zip';
 		}
 		else {
-			$payload['filename'] = $filename;
+			if (strlen($item->attachmentPath) < 9 ||
+				substr($item->attachmentPath, 0, 8) != 'storage:') {
+				throw new Exception("Invalid attachment path '{$item->attachmentPath}'");
+			}
+			$filename = substr($item->attachmentPath, 8);
+			$filename = self::decodeRelativeDescriptorString($filename);
+			
+			if ($zip) {
+				$payload['zip'] = 1;
+			}
+			else {
+				$payload['filename'] = $filename;
+			}
+			
+			$payload['contentType'] = $item->attachmentContentType;
+			$charset = $item->attachmentCharset;
+			if ($charset) {
+				$payload['charset'] = $charset;
+			}
 		}
+		
 		
 		$url = self::generateSignedURL($payload, $filename);
 		Z_Core::$MC->set($cacheKey, $url, self::$urlTTL - 15);
 		return $url;
+	}
+	
+	/**
+	 * Get a signed, time-limited attachment-proxy URL for an upload
+	 *
+	 * @return string  Proxy URL the client will POST to
+	 */
+	public static function getTemporaryUploadURL(Zotero_Item $item) {
+		$ttl = 60 * 10; // 10 minutes
+		$payload = [
+			'expires' => time() + $ttl,
+			'item' => $item->libraryKey,
+			'url' => Zotero_Storage::getUploadBaseURL()
+		];
+		// "upload" is just a placeholder path segment -- the proxy never uses it
+		return self::generateSignedURL($payload, 'upload');
 	}
 	
 	public static function generateSignedURL($payload, $filename) {
